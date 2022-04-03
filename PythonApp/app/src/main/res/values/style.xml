@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="colorPrimary">@color/orange_shade</item>
+        <item name="actionBarStyle">@color/blue_shade</item>
+        <item name="android:windowContentOverlay">@null</item>
+    </style>
+    <style name="MiwokAppBarStyle" >
+        <item name="elevation">0dp</item>
+
+    </style>
+    <style name="CategoryTabs" parent ="Widget.Design.TabLayout"
+        >
+        <item name="tabIndicatorColor">@android:color/white</item>
+        <item name="tabSelectedTextColor">@android:color/white</item>
+        <item name="tabTextAppearance">@style/CategoryTabTextAppearence</item><item name="tabBackground"
+        >@color/blue_shade</item>    </style>
+    <style name="CategoryTabTextAppearence" parent="TextAppearance.Design.Tab">
+        <item name="android:textColor">#A8A19E</item>
+    </style>
+</resources>
