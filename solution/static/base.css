@@ -31,11 +31,22 @@
     font-family: Montserrat;
     font-size: 200%;
 }
+.home{
+    margin-top: 10px;
+    
+}
+
+.home >a {
+    text-decoration: none;
+    color: black;
+    border: none;
+    font-size: 200%;
+}
 
 .main-button{
     display: flex;
     flex-direction: row;
-    padding: 90px;
+    padding: 70px;
 }
 
 .main-button > input{

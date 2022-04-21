@@ -18,6 +18,8 @@ def alphabet(request):
             from base64 import b64decode
             BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
             captured_image = request.POST['canvasData']
+            selectedword = request.POST['selectedword']
+            print("Selected Word = ",selectedword)
             datatext = str(captured_image)
             completeName = BASE_DIR+f"/media/urldata.txt"        
             with open(completeName, 'w') as file:
@@ -89,7 +91,12 @@ def alphabet(request):
                         12: 'L', 13: 'M', 14: 'N', 15: 'O', 16: 'P', 17: 'Q', 18: 'R', 19: 'S', 20: 'T', 21: 'U',
                         22: 'V', 23: 'W', 24: 'X', 25: 'Y', 26: 'Z', 27: 'a', 28: 'b', 29: 'd', 30: 'e', 31: 'f',
                         32: 'g', 33: 'h', 34: 'n', 35: 'q', 36: 'r', 37: 't'}
+               
+                key_list = list(dict.keys())
+                val_list = list(dict.values())
 
+                word = val_list.index(selectedword)
+                print("Your wORD IS = ", key_list[word])
                 res = ''
                 for c in classes:
                     res += str(dict[c + 1])
@@ -101,12 +108,14 @@ def alphabet(request):
                 print(" ")
                 print(" ")
                 print(" ")
-                acc = round(temp[0][3]*100, 2)
+                acc = round(temp[0][word]*100, 2)
                 print(acc)
                 return render(request, 'alphabets.html', {"dataval" : res, "accuracy" : acc})
             except:
                 return render(request, 'alphabets.html')
-        return render(request, 'alphabets.html')
+        else:
+            return render(request, 'alphabets.html')
+       
 
 def number(request):
      if request.method=="POST":
@@ -135,43 +144,66 @@ def number(request):
             BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
             try:
-                def predict(Theta1, Theta2, X):
-                    m = X.shape[0]
-                    one_matrix = np.ones((m, 1))
-                    X = np.append(one_matrix, X, axis=1)  # Adding bias unit to first layer
-                    z2 = np.dot(X, Theta1.transpose())
-                    a2 = 1 / (1 + np.exp(-z2))  # Activation for second layer
-                    one_matrix = np.ones((m, 1))
-                    a2 = np.append(one_matrix, a2, axis=1)  # Adding bias unit to hidden layer
-                    z3 = np.dot(a2, Theta2.transpose())
-                    a3 = 1 / (1 + np.exp(-z3))  # Activation for third layer
-                    p = (np.argmax(a3, axis=1))  # Predicting the class on the basis of max value of hypothesis
-                    return p
+                new_model = tf.keras.models.load_model(BASE_DIR+'/media/Digits.h5')
+                image = cv2.imread(BASE_DIR+"/media/image.jpg")
+                original = image.copy()
 
-                img = Image.open(BASE_DIR+"/media/image.jpg")
-                img = img.resize((28, 28))
+                gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+                blur = cv2.GaussianBlur(gray, (3, 3), 0)
+                canny = cv2.Canny(blur, 120, 255, 1)
 
-                # Converting rgb to grayscale image
-                img = img.convert('L')
+                cnts = cv2.findContours(canny, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+                cnts = cnts[0] if len(cnts) == 2 else cnts[1]
+                min_area = 100
+                images = []
+                boundary = []
+                classes = []
+                for c in cnts:
+                    area = cv2.contourArea(c)
+                    if area > min_area:
+                        x, y, w, h = cv2.boundingRect(c)
+                        arr = [x, y, w, h]
+                        boundary.append(arr)
 
-                # Extracting pixel matrix of image and converting it to a vector of (1, 784)
-                x = np.asarray(img)
-                vec = np.zeros((1, 784))
-                k = 0
-                for i in range(28):
-                    for j in range(28):
-                        vec[0][k] = x[i][j]
-                        k += 1
+                boundary = np.array(sorted(boundary, key=lambda x: x[0]))
+                for i in boundary:
+                    x, y, w, h = i
+                    cv2.rectangle(image, (x, y), (x + w, y + h), (36, 255, 12), 2)
+                    char = original[y:y + h, x:x + w]
+                    images.append(char)
 
-                # Loading Thetas
-                Theta1 = np.loadtxt(BASE_DIR+"/media/theta1.txt")
-                Theta2 = np.loadtxt(BASE_DIR+"/media/theta2.txt")
+                for i in images:
+                    i = cv2.cvtColor(i, cv2.COLOR_BGR2GRAY)
+                    i = cv2.resize(i, (20, 20))
 
-                # Calling function for prediction
-                pred = predict(Theta1, Theta2, vec / 255)
-                print(pred[0])
-                datac = 99.01
-                return render(request, 'numbers.html', {"dataval" : pred[0]})
+                    x = np.asarray(i)
+                    add_c = np.zeros((20, 4))
+                    add_r = np.zeros((4, 28))
+                    x = np.concatenate((add_c, x), axis=1)
+                    x = np.concatenate((x, add_c), axis=1)
+                    x = np.concatenate((x, add_r), axis=0)
+                    x = np.concatenate((add_r, x), axis=0)
+                    x = x.reshape((1, 28, 28, 1))
+
+                    '''mat = np.array(x[0,:,:,0], dtype='uint8')
+                    img = Image.fromarray(mat)
+                    img.show()'''
+
+                    x = x / 255
+                    temp = new_model.predict(x)
+                    classes.append(np.argmax(temp))
+
+                res = ''
+                for c in classes:
+                    res += str(c)
+
+                print(res)
+
+                # confidence score
+                print("hello", round((temp[0][4] * 100), 2))
+
+
+                return render(request, 'numbers.html', {"dataval" : round(temp[0][4] * 100, 2)})
             except:
                 return render(request, 'numbers.html')
      return render(request, 'numbers.html')

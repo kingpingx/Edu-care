@@ -39,13 +39,13 @@
     <div id="carouselExampleControls" class="carousel slide" data-interval="false">
         <div class="carousel-inner">
             <div class="carousel-item active">
-                <p class="d-block w-100 h-20"  alt="First slide">A for Apple <span class="iconify" data-icon="ion:logo-apple"></span> </p>
+                <p class="d-block w-100 h-20"  value="0" alt="First slide">A for Apple <span class="iconify" data-icon="ion:logo-apple"></span> </p>
             </div>
           <div class="carousel-item">
-            <p class="d-block w-100 h-20"  alt="First slide">B for Ball <span class="iconify" data-icon="fa-solid:baseball-ball"></span> </p>
+            <p class="d-block w-100 h-20"   value="1" alt="First slide">B for Ball <span class="iconify" data-icon="fa-solid:baseball-ball"></span> </p>
           </div>
           <div class="carousel-item">
-            <p class="d-block w-100 h-20"  alt="First slide">C for Cat <span class="iconify" data-icon="emojione-monotone:cat-face"></span></p>
+            <p class="d-block w-100 h-20"  value="2" alt="First slide">C for Cat <span class="iconify" data-icon="emojione-monotone:cat-face"></span></p>
           </div>
           <div class="carousel-item">
             <p class="d-block w-100 h-20"  alt="First slide">D for Dog <span class="iconify" data-icon="openmoji:dog-face"></span></p>
@@ -132,8 +132,10 @@
         <form action="" method="POST" id="form1"> 
             {% csrf_token %} 
             <input type="hidden" name="canvasData" id="my_hidden">
+            <input type="hidden" name="selectedword" id="my_hidden2">
+            <button class="home"> <a href="/">Home Page</a> </button>
             <div class="main-button">
-                <input id="dona" type="submit" name="submit" value="Submit" onclick="save()"> 
+                <input id="dona" type="submit" name="submit" value="Submit"> 
                 <button id="cleardata" onclick="cleardata()">Clear</button>
             </div>
         </form> 
@@ -165,8 +167,7 @@
     //e.preventDefault();
     var canvas = document.getElementById('canvas'); 
     document.getElementById('my_hidden').value = canvas.toDataURL('image/jpeg');
-    link = document.getElementById('linked');
-    link.setAttribute('download', 'MintyPaper.png');
+    document.getElementById('my_hidden2').value = document.querySelector('.active p').innerHTML[0];
     link.setAttribute('href', canvas.toDataURL("image/jpeg").replace("image/jpeg", "image/octet-stream"));
     document.forms["form1"].submit(); 
     });
@@ -178,7 +179,14 @@
         });
 
       
-   
+    $('#carouselExampleControls').on('slid.bs.carousel', function () {
+      var currentSlide = $('#carouselExampleControls div.active').index();
+      sessionStorage.setItem('lastSlide', currentSlide);   
+      });
+      if(sessionStorage.lastSlide){
+        $("#carouselExampleControls").carousel(sessionStorage.lastSlide*1);
+      }
+    
 
 
     
