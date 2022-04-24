@@ -124,6 +124,8 @@ def number(request):
             from base64 import b64decode
             BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
             captured_image = request.POST['canvasData']
+            selectedword = request.POST['selectedword']
+            print("Selected Word = ",selectedword)
             datatext = str(captured_image)
             completeName = BASE_DIR+f"/media/urldata.txt"        
             with open(completeName, 'w') as file:
@@ -200,10 +202,10 @@ def number(request):
                 print(res)
 
                 # confidence score
-                print("hello", round((temp[0][4] * 100), 2))
+                print("hello", round((temp[0][int(selectedword)] * 100), 2))
 
 
-                return render(request, 'numbers.html', {"dataval" : round(temp[0][4] * 100, 2)})
+                return render(request, 'numbers.html', {"dataval" : round(temp[0][int(selectedword)] * 100, 2)})
             except:
                 return render(request, 'numbers.html')
      return render(request, 'numbers.html')
