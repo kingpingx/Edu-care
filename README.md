@@ -1,7 +1,7 @@
 # Edu-care
 An  app and a Website for children to write and learn powered and derived by CNN Model trained using https://www.kaggle.com/datasets/crawford/emnist?select=emnist-balanced-train.csv and https://www.kaggle.com/competitions/digit-recognizer/data datasets.
 
-Steps to use webapp:-
+Steps to use webapp (Solution):-
 
 1. At first install python in your computer and add it to path
 2. Download project on you PC.
